@@ -1,11 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="minimal">
 <head>
 <meta charset="utf-8">
+<script>/* apply a saved light/dark choice before first paint, so the page doesn't flash */
+  try { const t = JSON.parse(localStorage.getItem("so:theme")); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sprinto Outbound</title>
 <meta name="description" content="Turn a list of company domains into evidence-backed prospect intelligence and personalised outreach.">
 <meta name="theme-color" content="#05070A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23C8F36B'/%3E%3Cstop offset='1' stop-color='%236EE7D2'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Crect x='9' y='9' width='13' height='14' rx='3' fill='%2305070A'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap">
@@ -101,6 +104,20 @@
   .mode { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); white-space: nowrap; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line-2); display: inline-block; }
   .dot.on { background: var(--lime); box-shadow: 0 0 0 3px rgba(200,243,107,.2), 0 0 12px rgba(200,243,107,.6); }
+  /* mobile menu (homepage): the section nav is hidden below 860px, so a menu button opens it as a sheet */
+  .menu-btn { display: none; width: 40px; height: 40px; padding: 0; border-radius: 12px; border: 1px solid var(--line-2); background: rgba(255,255,255,.03); color: var(--text); cursor: pointer; place-items: center; }
+  .menu-btn span { position: relative; display: block; width: 16px; height: 1.5px; background: currentColor; border-radius: 2px; transition: background .3s; }
+  .menu-btn span::before, .menu-btn span::after { content: ""; position: absolute; left: 0; width: 16px; height: 1.5px; background: currentColor; border-radius: 2px; transition: transform .4s var(--ease); }
+  .menu-btn span::before { top: -5px; } .menu-btn span::after { top: 5px; }
+  .menu-btn[aria-expanded="true"] span { background: transparent; }
+  .menu-btn[aria-expanded="true"] span::before { transform: translateY(5px) rotate(45deg); } .menu-btn[aria-expanded="true"] span::after { transform: translateY(-5px) rotate(-45deg); }
+  .msheet { position: fixed; left: 12px; right: 12px; top: calc(76px + env(safe-area-inset-top, 0px)); z-index: 35; padding: 10px; border-radius: 20px; display: grid; gap: 2px;
+            background: rgba(13,17,23,.96); border: 1px solid var(--line-2); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 30px 80px -30px #000; animation: introUp .45s var(--ease) both; }
+  .msheet a, .msheet button { display: flex; justify-content: space-between; align-items: center; padding: 14px 14px; border-radius: 12px; text-decoration: none; color: var(--text); font: 500 16px var(--body); background: none; border: 0; cursor: pointer; text-align: left; }
+  .msheet a:hover, .msheet button:hover { background: var(--surface-2); color: var(--text); }
+  .msheet .icon { color: var(--lime); }
+  @media (max-width: 860px) { .menu-btn { display: grid; } }
   @media (max-width: 860px) { .topnav.home { display: none; } .mode { display: none; } .topnav.appnav { gap: 16px; margin-left: 0; overflow-x: auto; } .topbar .wrap { gap: 14px; } }
 
   /* side section dots (homepage) */
@@ -489,12 +506,123 @@
   .skeleton { height: 120px; border-radius: 20px; background: linear-gradient(90deg, rgba(255,255,255,.03) 0%, rgba(255,255,255,.075) 50%, rgba(255,255,255,.03) 100%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
   @keyframes shimmer { to { background-position: -200% 0; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } html { scroll-behavior: auto; } }
+
+  /* ============================== minimal design (html.minimal)
+     A quieter layer over the styles above: flat surfaces, one accent, no glow/grain/aurora, few animations,
+     and a light theme (follows the OS, or the toggle in the top bar). Everything lives in this block, so removing
+     class="minimal" from <html> restores the original look. Colours come from tokens, so both themes share the rules. */
+  html.minimal {
+    --bg: #0C0D0F; --bg-2: #131417; --surface: #141518; --surface-2: #1C1D21; --raised: #17181C;
+    --line: rgba(255,255,255,.08); --line-2: rgba(255,255,255,.14);
+    --text: #EDEEF0; --text-2: #A9ADB5; --muted: #7C808A;
+    --lime: #C8F36B; --teal: #C8F36B; --dark: #0C0D0F; --accent-soft: rgba(200,243,107,.12);
+    --grad: linear-gradient(var(--lime), var(--lime));
+    --display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+  html.minimal[data-theme="light"] {
+    --bg: #FAFAF9; --bg-2: #F3F3F1; --surface: #FFFFFF; --surface-2: #F1F1EE; --raised: #FFFFFF;
+    --line: rgba(17,18,20,.09); --line-2: rgba(17,18,20,.16);
+    --text: #121316; --text-2: #474A51; --muted: #6C7079;
+    --lime: #3F6212; --teal: #3F6212; --dark: #FFFFFF; --accent-soft: rgba(63,98,18,.09);
+    --amber: #92400E; --amber-bg: rgba(217,119,6,.10); --red: #B42318; --red-bg: rgba(220,38,38,.08);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: light) {
+    html.minimal:not([data-theme="dark"]) {
+      --bg: #FAFAF9; --bg-2: #F3F3F1; --surface: #FFFFFF; --surface-2: #F1F1EE; --raised: #FFFFFF;
+      --line: rgba(17,18,20,.09); --line-2: rgba(17,18,20,.16);
+      --text: #121316; --text-2: #474A51; --muted: #6C7079;
+      --lime: #3F6212; --teal: #3F6212; --dark: #FFFFFF; --accent-soft: rgba(63,98,18,.09);
+      --amber: #92400E; --amber-bg: rgba(217,119,6,.10); --red: #B42318; --red-bg: rgba(220,38,38,.08);
+      color-scheme: light;
+    }
+  }
+
+  /* decoration off: grain, aurora, grid, pointer glow, scroll progress, side dots, floating badges, marquee */
+  .minimal body::after, .minimal .aurora, .minimal .gridlines, .minimal .glow::before, .minimal .progress,
+  .minimal .sidedots, .minimal .float, .minimal .marquee, .minimal .zoom-guide, .minimal .app-glow { display: none !important; }
+  .minimal ::selection { background: var(--accent-soft); }
+
+  /* type: one family, no serif italics, no gradient text */
+  .minimal em { font-family: inherit; font-style: normal; font-weight: inherit; letter-spacing: inherit; }
+  .minimal h1 em, .minimal h2 em, .minimal .split em .w > span { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--lime); }
+  .minimal .vs.after b, .minimal .bigstat { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--text); }
+  .minimal .vs.after b { color: var(--lime); }
+  .minimal .hero h1 { font-size: clamp(40px, 5.2vw, 72px); line-height: 1.04; letter-spacing: -.035em; }
+  .minimal .section-head h2, .minimal .step h3 { letter-spacing: -.03em; }
+  .minimal .statement { font-weight: 500; color: var(--text); }
+  .minimal .chapter > header .n { color: var(--muted); -webkit-text-stroke: 0; font-size: 44px; }
+  .minimal .eyebrow { letter-spacing: .12em; }
+
+  /* surfaces: flat, solid, hairline borders, no glow shadows */
+  .minimal .topbar { background: color-mix(in srgb, var(--bg) 88%, transparent); }
+  .minimal .topbar.scrolled, .minimal .topbar.app { background: color-mix(in srgb, var(--bg) 94%, transparent); }
+  .minimal .demo, .minimal .stage, .minimal .door, .minimal .vs, .minimal .trust article, .minimal .panel, .minimal .card,
+  .minimal .now, .minimal .continue, .minimal .card.inv, .minimal .summary, .minimal .tour-card, .minimal .msheet, .minimal .toast {
+    background: var(--raised); box-shadow: none; border: 1px solid var(--line); }
+  .minimal .tour-card, .minimal .msheet, .minimal .toast { box-shadow: 0 16px 40px -20px rgba(0,0,0,.35); border-color: var(--line-2); }
+  .minimal .demo, .minimal .stage, .minimal .vs, .minimal .trust article, .minimal .panel, .minimal .now, .minimal .summary { border-radius: 16px; }
+  .minimal .door, .minimal .card, .minimal .continue { border-radius: 14px; }
+  .minimal .vs.after, .minimal .door:hover, .minimal .continue:hover { border-color: var(--line-2); box-shadow: none; }
+  .minimal .continue:hover, .minimal .door:hover { transform: none; }
+  .minimal .mock, .minimal .chipbox, .minimal .mail, .minimal .trace-body, .minimal .ev, .minimal .mail-foot { background: var(--bg-2); }
+  .minimal .ev:hover, .minimal .ev:focus-visible { background: var(--surface-2); }
+  .minimal .ev .tip { background: var(--raised); box-shadow: 0 16px 40px -20px rgba(0,0,0,.35); }
+  .minimal .chipbox:focus-within { border-color: var(--lime); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .minimal input[type=search], .minimal input[type=email], .minimal input[inputmode=numeric], .minimal select { background: var(--surface); }
+  .minimal input:focus, .minimal select:focus { border-color: var(--lime) !important; }
+  .minimal .inside-bg, .minimal .pscene-stage { background: var(--bg); }
+  .minimal .inside-bg::after { display: none; }
+  .minimal .uncertain { color: var(--text); }
+  .minimal .summary, .minimal .summary h2 { color: var(--text); }
+  .minimal .summary .btn { background: var(--lime); color: var(--dark); border-color: var(--lime); }
+  .minimal .skeleton { background: var(--surface-2); animation: none; }
+  .minimal .ring::before { filter: none; }
+  .minimal .wordmark i, .minimal .trail .tn.up, .minimal .dot.on, .minimal .toast .dot { box-shadow: none; }
+  .minimal .barrow.q .track i { box-shadow: none; }
+  .minimal .tour-hole { box-shadow: 0 0 0 200vmax rgba(0,0,0,.55), 0 0 0 1.5px var(--lime); }
+  .minimal .tour-hole::after { display: none; }
+
+  /* buttons: calm, no sheen, no lift, smaller radius */
+  .minimal .btn { border-radius: 10px; transition: background .2s, border-color .2s, color .2s; }
+  .minimal .btn::after { display: none; }
+  .minimal .btn:hover { transform: none; }
+  .minimal .btn.lime, .minimal .btn.lime:hover { box-shadow: none; }
+  .minimal .btn.lime:hover { filter: brightness(1.06); }
+  .minimal .btn.ghost { background: transparent; }
+  .minimal .btn.ghost:hover { background: var(--surface-2); }
+  .minimal .btn.lg { padding: 16px 26px; }
+  .minimal .menu-btn { border-radius: 10px; background: transparent; }
+
+  /* layout: less vertical drama */
+  .minimal .band { padding-block: clamp(72px, 9vw, 120px); }
+  .minimal .cta-band { padding-block: clamp(80px, 10vw, 140px); }
+  .minimal .cta-band h2 { font-size: clamp(36px, 5vw, 64px); }
+  .minimal .flat .hero { min-height: 0; padding-block: 72px 56px; }
+  .minimal .flat .inside-view { padding: 24px 0 72px; }
+  .minimal .inside-inner { padding-top: 0; }
+  .minimal .inside-head { text-align: left; }
+  .minimal .inside-head h2 { font-size: clamp(30px, 3.6vw, 44px); }
+  .minimal .door { min-height: 0; }
+  .minimal .door p { display: block; }
+
+  /* motion: keep only short, functional transitions (page fade, menus, live progress) */
+  .minimal .intro, .minimal .demo.intro { animation: none; }
+  .minimal .live::after, .minimal .pulse::after { display: none; }
+  .minimal .tilt { transform: none !important; }
+
+  /* theme toggle */
+  .theme-btn { width: 36px; height: 36px; padding: 0; border-radius: 10px; border: 1px solid var(--line-2); background: transparent; color: var(--text-2); cursor: pointer; display: inline-grid; place-items: center; }
+  .theme-btn:hover { background: var(--surface-2); color: var(--text); }
+  .theme-btn .icon { width: 17px; height: 17px; vertical-align: 0; }
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-arrow" viewBox="0 0 256 256"><path fill="currentColor" d="m224.5 136.5-72 72a12 12 0 0 1-17-17L187 140H40a12 12 0 0 1 0-24h147l-51.5-51.5a12 12 0 0 1 17-17l72 72a12 12 0 0 1 0 17Z"/></symbol>
   <symbol id="i-compass" viewBox="0 0 256 256"><path fill="currentColor" d="M128 24a104 104 0 1 0 104 104A104.1 104.1 0 0 0 128 24Zm0 192a88 88 0 1 1 88-88 88.1 88.1 0 0 1-88 88Zm44.4-132.4-64 32a8 8 0 0 0-3.6 3.6l-32 64A8 8 0 0 0 80 192a8.1 8.1 0 0 0 3.6-.8l64-32a8 8 0 0 0 3.6-3.6l32-64a8 8 0 0 0-10.8-10.8ZM140 140l-38.1 19 19-38.1L159 102Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 256 256"><circle cx="128" cy="128" r="48" fill="currentColor"/><path fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round" d="M128 20v22M128 214v22M20 128h22M214 128h22M51.6 51.6l15.6 15.6M188.8 188.8l15.6 15.6M51.6 204.4l15.6-15.6M188.8 67.2l15.6-15.6"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 256 256"><path fill="currentColor" d="M233.5 142.2a8 8 0 0 0-8-2 88.1 88.1 0 0 1-109.8-109.8 8 8 0 0 0-10-10 104.8 104.8 0 0 0-52.9 37A104 104 0 0 0 136 224a103.1 103.1 0 0 0 62.5-20.9 104.8 104.8 0 0 0 37-52.9 8 8 0 0 0-2-8Z"/></symbol>
   <symbol id="i-check" viewBox="0 0 256 256"><path fill="currentColor" d="M232.5 68.5l-128 128a12 12 0 0 1-17 0l-56-56a12 12 0 0 1 17-17L96 171l119.5-119.5a12 12 0 0 1 17 17Z"/></symbol>
   <symbol id="i-alert" viewBox="0 0 256 256"><path fill="currentColor" d="M236.8 188.1 149.4 36.2a24.8 24.8 0 0 0-42.8 0L19.2 188.1a23.5 23.5 0 0 0 0 23.7A24.4 24.4 0 0 0 40.6 224h174.8a24.4 24.4 0 0 0 21.4-12.2 23.5 23.5 0 0 0 0-23.7ZM120 104a8 8 0 0 1 16 0v40a8 8 0 0 1-16 0Zm8 88a12 12 0 1 1 12-12 12 12 0 0 1-12 12Z"/></symbol>
   <symbol id="i-copy" viewBox="0 0 256 256"><path fill="currentColor" d="M216 32H88a8 8 0 0 0-8 8v40H40a8 8 0 0 0-8 8v128a8 8 0 0 0 8 8h128a8 8 0 0 0 8-8v-40h40a8 8 0 0 0 8-8V40a8 8 0 0 0-8-8Zm-56 176H48V96h112Zm48-48h-32V88a8 8 0 0 0-8-8H96V48h112Z"/></symbol>
@@ -591,8 +719,25 @@ async function getRun(id) {
 
 // ============================================================================================= motion
 // One scroll loop for the whole page. Each view registers its scroll effects in `fx`; route() clears them.
-const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+// MINIMAL: the quiet design (see the "minimal design" block at the end of the stylesheet). It switches off the
+// scroll-driven effects (portal zoom, word-by-word statement, reveals, magnetic buttons, card tilt), exactly as
+// reduced-motion does. Set to false, and remove class="minimal" from <html>, to bring back the original look.
+const MINIMAL = document.documentElement.classList.contains("minimal");
+const calm = MINIMAL || matchMedia("(prefers-reduced-motion: reduce)").matches;
 const fine = matchMedia("(pointer: fine)").matches;
+
+// light/dark toggle (minimal design only): follows the OS until the visitor picks one, then remembers it
+const prefersLight = matchMedia("(prefers-color-scheme: light)");
+const currentTheme = () => document.documentElement.dataset.theme || (prefersLight.matches ? "light" : "dark");
+function themeBtn() {
+  if (!MINIMAL) return null;
+  const b = el("button", {class: "theme-btn", type: "button"});
+  const paint = () => { const light = currentTheme() === "light";
+    b.replaceChildren(icon(light ? "i-moon" : "i-sun")); b.setAttribute("aria-label", light ? "Switch to dark theme" : "Switch to light theme"); b.title = b.getAttribute("aria-label"); };
+  b.onclick = () => { const next = currentTheme() === "light" ? "dark" : "light";
+    document.documentElement.dataset.theme = next; store.set("theme", next); paint(); };
+  paint(); return b;
+}
 let fx = [], ticking = false;
 let animateNext = true; // true after a navigation; false for live re-renders (so a running research page doesn't flash)
 const progressBar = el("div", {class: "progress", "aria-hidden": "true"});
@@ -779,12 +924,24 @@ function rerenderIf(kind, id) {
 const jump = id => e => { e.preventDefault(); document.getElementById(id).scrollIntoView(); };
 function homePage() {
   const SECTIONS = [["top", "Intro"], ["problem", "The problem"], ["how", "How it works"], ["trust", "Why trust it"], ["results", "Results"]];
-  const top = el("header", {class: "topbar"}, el("div", {class: "wrap"},
+  // mobile menu: lives outside the topbar, because the topbar's backdrop-filter would trap a fixed-position sheet
+  const sheet = el("nav", {class: "msheet", id: "msheet", "aria-label": "Site menu", hidden: ""});
+  const menuBtn = el("button", {class: "menu-btn", type: "button", "aria-label": "Open menu", "aria-expanded": "false", "aria-controls": "msheet"}, el("span"));
+  const setMenu = open => { sheet.hidden = !open; menuBtn.setAttribute("aria-expanded", String(open)); menuBtn.setAttribute("aria-label", open ? "Close menu" : "Open menu"); };
+  const menuGo = fn => e => { setMenu(false); fn(e); };
+  sheet.append(...SECTIONS.slice(1).map(([id, t]) => el("a", {href: "#" + id, onclick: menuGo(jump(id))}, t, icon("i-arrow"))),
+    el("button", {type: "button", onclick: menuGo(() => tour("toured", HOME_TOUR))}, "Take the tour", icon("i-compass")));
+  menuBtn.addEventListener("click", () => setMenu(sheet.hidden));
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !sheet.hidden) { setMenu(false); menuBtn.focus(); } });
+  document.addEventListener("click", e => { if (!sheet.hidden && !sheet.contains(e.target) && !menuBtn.contains(e.target)) setMenu(false); });
+  const top =el("header", {class: "topbar"}, el("div", {class: "wrap"},
     el("a", {class: "wordmark", href: "#/", onclick: jump("top"), "aria-label": "Sprinto Outbound"}, el("i"), el("span", {class: "wm-t"}, "SPRINTO OUTBOUND")),
     el("nav", {class: "topnav home", "aria-label": "Site"}, el("a", {href: "#top", onclick: e => { e.preventDefault(); goInside(); }}, "Explore"), ...SECTIONS.slice(2).map(([id, t]) => el("a", {href: "#" + id, onclick: jump(id)}, t))),
     el("div", {class: "right"},
       el("button", {class: "btn ghost sm hide-sm", type: "button", onclick: () => tour("toured", HOME_TOUR)}, icon("i-compass"), "Tour"),
-      el("a", {class: "btn lime sm", id: "nav-cta", href: "#app"}, "Open workspace", icon("i-arrow")))));
+      themeBtn(),
+      el("a", {class: "btn lime sm", id: "nav-cta", href: "#app"}, "Open workspace", icon("i-arrow")),
+      menuBtn)));
   const dots = el("nav", {class: "sidedots", "aria-label": "Page sections"}, ...SECTIONS.map(([id, t]) => el("a", {href: "#" + id, onclick: jump(id), "data-id": id}, el("span", {}, t))));
 
   // ----- hero
@@ -828,7 +985,7 @@ function homePage() {
     el("span", {class: "tn2"}, n), el("h3", {}, t), el("p", {}, d), el("span", {class: "open"}, "Open", icon("i-arrow"))));
   const reportTile = doors[1];
   doors.forEach(n => n.addEventListener("focus", () => { if (!calm && +(n.style.opacity || 0) < .8) scrollTo(0, scene.offsetTop + (scene.offsetHeight - innerHeight) * .8); }));
-  const insideHead = el("div", {class: "inside-head"}, el("div", {class: "eyebrow"}, "You're inside"), el("h2", {}, "Where do you ", el("em", {}, "want to go?")));
+  const insideHead = el("div", {class: "inside-head"}, el("div", {class: "eyebrow"}, calm ? "Start here" : "You're inside"), el("h2", {}, "Where do you ", el("em", {}, "want to go?")));
   const insideInner = el("div", {class: "inside-inner wrap"}, insideHead, el("div", {class: "doors"}, ...doors));
   const insideView = el("div", {class: "inside-view"}, el("div", {class: "inside-bg", "aria-hidden": "true"}), insideInner);
   const inside = el("div", {class: "inside"}, insideView);
@@ -998,7 +1155,8 @@ function homePage() {
     el("h2", {"data-rv": ""}, "Your next qualified lead is ", el("em", {}, "one domain"), " away."),
     el("div", {"data-rv": "", style: "--d:150"}, magnet(el("a", {class: "btn lime lg", href: "#app"}, "Open the workspace", icon("i-arrow"))))));
   const foot = el("footer", {class: "site"}, el("div", {class: "wrap"},
-    el("span", {}, "Sprinto Outbound · a MESA School of Business student build (Term 2, AI Case 2). Role-play outreach; no prospect is ever emailed."),
+    el("span", {}, "Sprinto Outbound · a MESA School of Business student build (Term 2, AI Case 2). Role-play outreach; no prospect is ever emailed.",
+      el("br"), "Built by Agnesh · Minimal UI by Aastha Pandey"),
     el("a", {href: "https://github.com/agneshmp07/sprinto-outbound", target: "_blank", rel: "noopener"}, "Source on GitHub")));
 
   const sections = [scene, problem, how, trust, results];
@@ -1016,7 +1174,7 @@ function homePage() {
       return [el("div", {class: "barrow " + cls}, el("span", {}, name), el("div", {class: "track"}, bar), el("b", {class: "num"}, String(n))), bar, n]; });
     resultsBody.replaceChildren(...barEls.map(b => b[0]));
     onView(results, () => { countUp(statQ, o.qualified, 1400); barEls.forEach(([, bar, n]) => { bar.style.width = `${Math.round(n / total * 100)}%`; }); });
-    if (!best) { demo.replaceChildren(el("span", {class: "tag"}, "Example"), el("p", {class: "muted"}, "Run the workspace to see a live example here.")); return; }
+    if (!best) { demo.replaceChildren(...sampleDemo()); return; }
     const reportHref = `#app/report/${encodeURIComponent(best.run_id)}/${encodeURIComponent(best.domain)}`;
     reportTile.href = reportHref;
     demo.replaceChildren(el("span", {class: "tag"}, "Real result · latest run"),
@@ -1027,10 +1185,21 @@ function homePage() {
         el("li", {}, el("span", {class: "k"}, "Buyer"), el("span", {class: "v"}, icon("i-check"), "Decision-maker found")),
         el("li", {}, el("span", {class: "k"}, "Outreach"), el("span", {class: "v"}, icon("i-check"), best.sent ? "Draft ready · test sent" : best.drafted ? "Draft ready" : "Pending"))),
       el("a", {class: "textlink", href: reportHref, style: "display:inline-block;margin-top:18px"}, "Read the full decision report →"));
-  }).catch(() => demo.replaceChildren(el("span", {class: "tag"}, "Example"), el("p", {class: "muted"}, "The live example couldn't load. The workspace still works.")));
+  }).catch(() => demo.replaceChildren(...sampleDemo()));
+  // shown until a real qualified result exists: clearly labelled as illustrative, never presented as a real company
+  function sampleDemo() {
+    return [el("span", {class: "tag"}, "Sample · illustrative"),
+      el("div", {class: "demo-top"}, el("div", {}, el("h3", {}, "Example Co."), el("p", {class: "muted small", style: "margin-top:4px"}, "example.com · B2B SaaS")), ring(78, "ICP fit")),
+      el("ul", {class: "checks"},
+        el("li", {}, el("span", {class: "k"}, "Company fit"), el("span", {class: "v"}, pill("qualified"))),
+        el("li", {}, el("span", {class: "k"}, "Why now"), el("span", {class: "v small", style: "max-width:240px;text-align:right"}, "Selling to enterprises, no SOC 2 report on the trust page")),
+        el("li", {}, el("span", {class: "k"}, "Buyer"), el("span", {class: "v"}, icon("i-check"), "Decision-maker found")),
+        el("li", {}, el("span", {class: "k"}, "Outreach"), el("span", {class: "v"}, icon("i-check"), "Draft ready"))),
+      el("a", {class: "textlink", href: "#app", style: "display:inline-block;margin-top:18px"}, "Run it on a real company →")];
+  }
 
   if (!store.get("toured")) setTimeout(() => { if (!location.hash.startsWith("#app") && scrollY < 200) tour("toured", HOME_TOUR); }, 1900);
-  return el("div", {}, top, dots, el("main", {}, scene, marquee, problem, how, trust, results, cta), foot);
+  return el("div", {}, top, sheet, dots, el("main", {}, scene, marquee, problem, how, trust, results, cta), foot);
 }
 
 // ============================================================================================= workspace shell
@@ -1043,7 +1212,8 @@ function appShell(active, content) {
       el("nav", {class: "topnav appnav", "aria-label": "Workspace"}, tab("research", "#app", "Research"), tab("history", "#app/history", "History"),
         tab("icp", "#app/icp", "ICP & scoring"), tab("system", "#app/system", "System")),
       el("div", {class: "right"}, el("span", {class: "mode"}, el("span", {class: "dot" + (send ? " on" : "")}), send ? "Test emails go to the owner only" : "Dry run · no emails"),
-        active === "research" ? el("button", {class: "btn ghost sm", type: "button", "aria-label": "Take the workspace tour", onclick: () => tour("wsToured", WS_TOUR)}, icon("i-compass"), el("span", {class: "hide-sm"}, "Tour")) : null))),
+        active === "research" ? el("button", {class: "btn ghost sm", type: "button", "aria-label": "Take the workspace tour", onclick: () => tour("wsToured", WS_TOUR)}, icon("i-compass"), el("span", {class: "hide-sm"}, "Tour")) : null,
+        themeBtn()))),
     el("main", {class: "app-main"}, el("div", {class: "wrap"}, content)));
 }
 
